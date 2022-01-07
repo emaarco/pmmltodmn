@@ -12,8 +12,9 @@ data class TreeInfo(
     val targetAttribute: Node,
 ) {
 
-    val nameOfTargetAttribute: String
-        get() = NodeUtils.getValueOfNodeAttribute(targetAttribute, "name")
+    fun getNameOfTargetAttribute(): String {
+        return NodeUtils.getValueOfNodeAttribute(targetAttribute, "name")
+    }
 
     fun dictionaryAttributes(): List<String> {
         val allNodes: List<Node> = getAllTreeNodes();
@@ -29,7 +30,6 @@ data class TreeInfo(
             .flatMap { obj: List<Node> -> obj.stream() }
             .distinct().collect(Collectors.toList())
     }
-
 
     private fun getAttributeFromDictionary(node: Node): String {
         val conditionOfNode: Node = NodeUtils.getConditionOfTreeNode(node)

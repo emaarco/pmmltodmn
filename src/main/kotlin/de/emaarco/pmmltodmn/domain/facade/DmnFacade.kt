@@ -8,10 +8,7 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
 
 @Component
-class DmnFacade(
-    private val dmnModelService: DmnModelService,
-    private val decisionTreeService: DecisionTreeService
-) {
+class DmnFacade(private val dmnModelService: DmnModelService, private val decisionTreeService: DecisionTreeService) {
 
     fun buildDmnModel(rawPmmlModel: MultipartFile): ByteArrayResource {
         val info: TreeInfo = decisionTreeService.extractDecisionTreeFromPmml(rawPmmlModel)

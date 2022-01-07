@@ -19,13 +19,13 @@ class InputAttributes(document: Document, usedAttributes: List<String>, attribut
 
     init {
         inputAttributes = ArrayList()
-        usedAttributes.forEach(Consumer { attribute: String ->
+        usedAttributes.forEach { attribute: String ->
             val dictionaryAttribute = attributeDictionary[attribute]
             dictionaryAttribute?.let {
                 val inputAttribute = createInputAttribute(document, it)
                 inputAttributes.add(inputAttribute)
             }
-        })
+        }
     }
 
     fun appendTo(parent: Element) {
@@ -33,6 +33,7 @@ class InputAttributes(document: Document, usedAttributes: List<String>, attribut
     }
 
     /* -------------------------- private helper methods -------------------------- */
+
     private fun createInputAttribute(document: Document, dictionaryAttribute: Node): Element {
         // <input>..</input>
         val nameOfAttribute: String = NodeUtils.getValueOfNodeAttribute(dictionaryAttribute, "name")
