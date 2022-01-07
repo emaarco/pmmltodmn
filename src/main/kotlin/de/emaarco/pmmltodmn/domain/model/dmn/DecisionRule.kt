@@ -39,6 +39,7 @@ class DecisionRule(document: Document, usedAttributes: List<String>) {
      */
     fun updateConditionsOfRule(treeRoute: List<Node>, usedAttributes: List<String>, dictionary: HashMap<String, Node>) {
         for (i in treeRoute.indices) {
+
             // Find node & get decision-condition
             val currentNode = treeRoute[i]
             val conditionOfCurrentNode: Node = NodeUtils.getConditionOfTreeNode(currentNode)
@@ -56,7 +57,7 @@ class DecisionRule(document: Document, usedAttributes: List<String>) {
                 if (currentFeelCondition.isBlank()) {
                     text.textContent = newFeelCondition
                 } else {
-                    text.textContent = String.format("%s and %s", currentFeelCondition, newFeelCondition)
+                    text.textContent = "$currentFeelCondition and $newFeelCondition"
                 }
             }
 
@@ -73,7 +74,7 @@ class DecisionRule(document: Document, usedAttributes: List<String>) {
      * --> In a second step, existing conditions will replace the empty ones
      */
     private fun addEmptyInputExpressionsToRule(document: Document, usedAttributes: List<String>) {
-        usedAttributes.forEach(Consumer { inputAttribute: String? ->
+        usedAttributes.forEach { _ ->
             // Container for the condition
             val inputExpressionOfRule = document.createElement("inputEntry")
             inputExpressionOfRule.setAttribute("id", "UnaryTests_${IdUtils.buildRandomId()}")
@@ -84,13 +85,13 @@ class DecisionRule(document: Document, usedAttributes: List<String>) {
             inputExpressionOfRule.appendChild(conditionOfRuleInput)
             // Add inputExpression to list
             inputExpressions.add(inputExpressionOfRule)
-        })
+        }
     }
 
     private fun updateOutputExpression(outputNode: Node) {
         val output = outputExpression.childNodes.item(0)
         val outputValue: String = NodeUtils.getValueOfNodeAttribute(outputNode, "score")
-        output.textContent = "\"" + outputValue + "\""
+        output.textContent = "\"$outputValue\""
     }
 
 }

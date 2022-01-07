@@ -41,7 +41,7 @@ class DmnModelService {
         inputAttributes.appendTo(decisionTable)
 
         // Set the output fields (--> header)
-        val nameOfTargetAttribute: String = decisionTree.nameOfTargetAttribute
+        val nameOfTargetAttribute: String = decisionTree.getNameOfTargetAttribute()
         val targetAttribute = dictionary[nameOfTargetAttribute]
         val outputAttribute = OutputAttribute(doc, targetAttribute!!)
         outputAttribute.appendTo(decisionTable)
@@ -84,4 +84,5 @@ class DmnModelService {
             throw RuntimeException("Could not write result to xml-file")
         }
     }
+
 }

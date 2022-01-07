@@ -14,9 +14,16 @@ class DecisionCondition(conditionNode: Node) {
     private val value: String
     private val comparator: String
 
+    init {
+        fieldName = NodeUtils.getValueOfNodeAttribute(conditionNode, "field")
+        value = NodeUtils.getValueOfNodeAttribute(conditionNode, "value")
+        val rawComparator: String = NodeUtils.getValueOfNodeAttribute(conditionNode, "operator")
+        comparator = getCompareOperator(rawComparator)
+    }
+
     fun getCondition(dataType: String): String {
         return if (comparator == "" && dataType == "string") {
-            "\"" + value + "\""
+            "\"${value}\""
         } else if (comparator == "") {
             value
         } else {
@@ -38,10 +45,4 @@ class DecisionCondition(conditionNode: Node) {
         }
     }
 
-    init {
-        fieldName = NodeUtils.getValueOfNodeAttribute(conditionNode, "field")
-        value = NodeUtils.getValueOfNodeAttribute(conditionNode, "value")
-        val rawComparator: String = NodeUtils.getValueOfNodeAttribute(conditionNode, "operator")
-        comparator = getCompareOperator(rawComparator)
-    }
 }
