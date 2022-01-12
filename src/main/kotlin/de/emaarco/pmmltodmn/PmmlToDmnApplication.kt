@@ -4,10 +4,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class PmmlToDmnApplication {
+class PmmlToDmnApplication
 
-	fun main(args: Array<String>) {
-		runApplication<PmmlToDmnApplication>(*args)
-	}
-
+fun main(args: Array<String>) {
+    runApplication<PmmlToDmnApplication>(*args)
 }
+

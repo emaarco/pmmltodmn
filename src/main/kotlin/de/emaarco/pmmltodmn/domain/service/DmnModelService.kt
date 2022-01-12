@@ -8,8 +8,6 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
-import java.lang.RuntimeException
 import java.util.*
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -21,14 +19,11 @@ import javax.xml.transform.stream.StreamResult
 @Service
 class DmnModelService {
 
-    private val dmnModelID = "dmn_approve_credit"
-    private val dmnDecisionID = "decision_approve_credit"
-    private val dmnDecisionName = "Kreditwürdigkeit prüfen"
+    fun buildDmnTable(decisionTree: TreeInfo, request: DmnModelRequest): ByteArrayResource {
 
-    fun buildDmnTable(decisionTree: TreeInfo): ByteArrayResource {
         val doc = initializeOutputDocument()
-        val dmnModel = DmnModel(doc, dmnModelID, dmnDecisionID)
-        val decision = Decision(doc, dmnModel, dmnDecisionID, dmnDecisionName)
+        val dmnModel = DmnModel(doc, request.dmnModelID, request.dmnModelName)
+        val decision = Decision(doc, dmnModel, request.dmnDecisionID, request.dmnDecisionName)
         val decisionTable: Element = DecisionTable(doc, decision).decisionTable
 
         // Provided data
@@ -47,7 +42,7 @@ class DmnModelService {
         outputAttribute.appendTo(decisionTable)
 
         // Print the rules to the xml
-        tree.forEach { (key: Int?, treeRoute: List<Node>) ->
+        tree.forEach { (_, treeRoute: List<Node>) ->
             val rule = DecisionRule(doc, usedAttributes)
             rule.updateConditionsOfRule(treeRoute, usedAttributes, dictionary)
             rule.appendTo(decisionTable)
