@@ -1,23 +1,29 @@
 package de.emaarco.pmmltodmn.api
 
 import de.emaarco.pmmltodmn.domain.facade.DmnFacade
+import de.emaarco.pmmltodmn.domain.model.dmn.DmnModelRequest
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestPart
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 internal class DmnController(private val dmnFacade: DmnFacade) {
 
-    @PostMapping
-    fun buildDmnModel(response: HttpServletResponse, @RequestPart("tree") rawPmmlTree: MultipartFile): ResponseEntity<ByteArrayResource> {
+    @PostMapping("/dmn")
+    fun buildDmnModel(
+        response: HttpServletResponse,
+        @RequestPart("pmml-file") rawPmmlTree: MultipartFile,
+        @RequestParam(name = "model-id") modelId: String,
+        @RequestParam(name = "model-name") modelName: String,
+        @RequestPart(name = "decision-id") decisionId: String,
+        @RequestParam(name = "decision-name") decisionName: String,
+    ): ResponseEntity<ByteArrayResource> {
         response.contentType = "application/xml"
-        return ResponseEntity.ok().body(dmnFacade.buildDmnModel(rawPmmlTree))
+        val request = DmnModelRequest(modelId, modelName, decisionId, decisionName)
+        return ResponseEntity.ok().body(dmnFacade.buildDmnModel(rawPmmlTree, request))
     }
 
 }
