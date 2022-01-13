@@ -1,30 +1,25 @@
 package de.emaarco.pmmltodmn.domain.model.dmn
 
+import de.emaarco.pmmltodmn.domain.model.tree.DataField
 import de.emaarco.pmmltodmn.domain.utils.AttributeUtils
 import de.emaarco.pmmltodmn.domain.utils.IdUtils
-import de.emaarco.pmmltodmn.domain.utils.NodeUtils
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.Node
-import java.util.ArrayList
-import java.util.HashMap
 import java.util.function.Consumer
 
 /**
  * All input attributes of a specific dmn-decision-table
  */
-class InputAttributes(document: Document, usedAttributes: List<String>, attributeDictionary: HashMap<String, Node>) {
+class InputAttributes(document: Document, dataFields: List<DataField>) {
 
     private val inputAttributes: MutableList<Element>
 
     init {
         inputAttributes = ArrayList()
-        usedAttributes.forEach { attribute: String ->
-            val dictionaryAttribute = attributeDictionary[attribute]
-            dictionaryAttribute?.let {
-                val inputAttribute = createInputAttribute(document, it)
-                inputAttributes.add(inputAttribute)
-            }
+        val relevantDataFields = dataFields.filter { f -> !f.isTarget }
+        relevantDataFields.forEach { attribute ->
+            val inputAttribute = createInputAttribute(document, attribute)
+            inputAttributes.add(inputAttribute)
         }
     }
 
@@ -34,18 +29,16 @@ class InputAttributes(document: Document, usedAttributes: List<String>, attribut
 
     /* -------------------------- private helper methods -------------------------- */
 
-    private fun createInputAttribute(document: Document, dictionaryAttribute: Node): Element {
+    private fun createInputAttribute(document: Document, dictionaryAttribute: DataField): Element {
         // <input>..</input>
-        val nameOfAttribute: String = NodeUtils.getValueOfNodeAttribute(dictionaryAttribute, "name")
-        val input = createInput(document, nameOfAttribute)
+        val input = createInput(document, dictionaryAttribute.name)
 
         // <inputExpression>...</inputExpression/> --> within <input>...</input>
-        val typeOfAttribute: String = NodeUtils.getValueOfNodeAttribute(dictionaryAttribute, "dataType")
-        val inputExpression = createInputExpression(document, typeOfAttribute)
+        val inputExpression = createInputExpression(document, dictionaryAttribute.dataType)
         input.appendChild(inputExpression)
 
         // <text>...</text> ---> within <inputExpression>...</inputExpression/>
-        val text = createText(document, nameOfAttribute)
+        val text = createText(document, dictionaryAttribute.name)
         inputExpression.appendChild(text)
         return input
     }
@@ -54,7 +47,7 @@ class InputAttributes(document: Document, usedAttributes: List<String>, attribut
      * Create node '<input></input>...'
      * ...that will contain '<inputExpression>...</inputExpression>'
      */
-    fun createInput(document: Document, nameOfAttribute: String?): Element {
+    private fun createInput(document: Document, nameOfAttribute: String?): Element {
         val input = document.createElement("input")
         input.setAttribute("id", "Input_${IdUtils.buildRandomId()}")
         input.setAttribute("label", nameOfAttribute)

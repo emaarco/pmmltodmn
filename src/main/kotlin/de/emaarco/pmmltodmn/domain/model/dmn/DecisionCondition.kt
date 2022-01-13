@@ -3,7 +3,6 @@ package de.emaarco.pmmltodmn.domain.model.dmn
 import de.emaarco.pmmltodmn.domain.utils.AttributeUtils
 import de.emaarco.pmmltodmn.domain.utils.NodeUtils
 import org.w3c.dom.Node
-import java.lang.RuntimeException
 
 /**
  * One condition of a rule, in a dmn-decision-table
@@ -11,8 +10,8 @@ import java.lang.RuntimeException
 class DecisionCondition(conditionNode: Node) {
 
     val fieldName: String
-    private val value: String
-    private val comparator: String
+    val value: String
+    val comparator: String
 
     init {
         fieldName = NodeUtils.getValueOfNodeAttribute(conditionNode, "field")
@@ -21,13 +20,15 @@ class DecisionCondition(conditionNode: Node) {
         comparator = getCompareOperator(rawComparator)
     }
 
-    fun getCondition(dataType: String): String {
+    fun getCondition(dataType: String, isPartOfDisjunction: Boolean): String {
         return if (comparator == "" && dataType == "string") {
             "\"${value}\""
         } else if (comparator == "") {
             value
+        } else if (isPartOfDisjunction) {
+            "(${AttributeUtils.getVariableName(fieldName)} $comparator $value)"
         } else {
-            "(${AttributeUtils.getVariableName(fieldName)} $comparator ${value})"
+            "$comparator $value"
         }
     }
 

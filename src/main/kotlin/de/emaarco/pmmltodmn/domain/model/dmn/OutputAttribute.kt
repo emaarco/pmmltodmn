@@ -1,15 +1,14 @@
 package de.emaarco.pmmltodmn.domain.model.dmn
 
+import de.emaarco.pmmltodmn.domain.model.tree.DataField
 import de.emaarco.pmmltodmn.domain.utils.IdUtils
-import de.emaarco.pmmltodmn.domain.utils.NodeUtils
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.Node
 
 /**
  * Output attribute of a dmn-decision-table
  */
-class OutputAttribute(document: Document, targetAttribute: Node) {
+class OutputAttribute(document: Document, targetAttribute: DataField) {
 
     private val output: Element
 
@@ -20,7 +19,7 @@ class OutputAttribute(document: Document, targetAttribute: Node) {
     init {
         output = document.createElement("output")
         output.setAttribute("id", "Output_${IdUtils.buildRandomId()}")
-        output.setAttribute("name", NodeUtils.getValueOfNodeAttribute(targetAttribute, "name"))
-        output.setAttribute("typeRef", NodeUtils.getValueOfNodeAttribute(targetAttribute, "dataType"))
+        output.setAttribute("name", targetAttribute.name)
+        output.setAttribute("typeRef", targetAttribute.dataType)
     }
 }
