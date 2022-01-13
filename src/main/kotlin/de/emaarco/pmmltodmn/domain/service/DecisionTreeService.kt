@@ -28,7 +28,7 @@ class DecisionTreeService {
             document.documentElement.normalize()
             document
         } catch (ex: Exception) {
-            throw RuntimeException("Could not map provided pmml file to xml")
+            throw RuntimeException("Could not map provided pmml file to xml, due to exception: ${ex.message}")
         }
     }
 
