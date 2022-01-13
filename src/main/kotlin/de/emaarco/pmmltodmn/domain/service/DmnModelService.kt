@@ -1,6 +1,8 @@
 package de.emaarco.pmmltodmn.domain.service
 
 import de.emaarco.pmmltodmn.domain.model.dmn.*
+import de.emaarco.pmmltodmn.domain.model.tree.DataField
+import de.emaarco.pmmltodmn.domain.model.tree.TreeDictionary
 import de.emaarco.pmmltodmn.domain.model.tree.TreeInfo
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Service
@@ -28,23 +30,20 @@ class DmnModelService {
 
         // Provided data
         val tree: TreeMap<Int, List<Node>> = decisionTree.allTreePaths
-        val usedAttributes: List<String> = decisionTree.dictionaryAttributes()
-        val dictionary: HashMap<String, Node> = decisionTree.dictionary
+        val dictionary: TreeDictionary = decisionTree.dictionary
 
         // Set the input-fields (--> header)
-        val inputAttributes = InputAttributes(doc, usedAttributes, dictionary)
+        val inputAttributes = InputAttributes(doc, dictionary.getNonTargetFields())
         inputAttributes.appendTo(decisionTable)
 
         // Set the output fields (--> header)
-        val nameOfTargetAttribute: String = decisionTree.getNameOfTargetAttribute()
-        val targetAttribute = dictionary[nameOfTargetAttribute]
-        val outputAttribute = OutputAttribute(doc, targetAttribute!!)
+        val targetAttribute: DataField = dictionary.getTargetAttribute()
+        val outputAttribute = OutputAttribute(doc, targetAttribute)
         outputAttribute.appendTo(decisionTable)
 
         // Print the rules to the xml
         tree.forEach { (_, treeRoute: List<Node>) ->
-            val rule = DecisionRule(doc, usedAttributes)
-            rule.updateConditionsOfRule(treeRoute, usedAttributes, dictionary)
+            val rule = DecisionRule(doc, dictionary, treeRoute)
             rule.appendTo(decisionTable)
         }
 

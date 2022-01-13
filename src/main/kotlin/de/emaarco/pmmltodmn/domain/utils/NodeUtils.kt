@@ -1,9 +1,17 @@
 package de.emaarco.pmmltodmn.domain.utils
 
 import org.w3c.dom.Node
-import java.lang.RuntimeException
+import org.w3c.dom.NodeList
 
 object NodeUtils {
+
+    fun mapToList(nodeList: NodeList): List<Node> {
+        val resultList: MutableList<Node> = ArrayList()
+        for (i in 0 until nodeList.length) {
+            resultList.add(nodeList.item(i))
+        }
+        return resultList
+    }
 
     fun getValueOfNodeAttribute(node: Node, attribute: String?): String {
         return node.attributes
