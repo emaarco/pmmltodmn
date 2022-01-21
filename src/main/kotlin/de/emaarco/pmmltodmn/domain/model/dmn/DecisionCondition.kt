@@ -1,6 +1,5 @@
 package de.emaarco.pmmltodmn.domain.model.dmn
 
-import de.emaarco.pmmltodmn.domain.utils.AttributeUtils
 import de.emaarco.pmmltodmn.domain.utils.NodeUtils
 import org.w3c.dom.Node
 
@@ -10,8 +9,8 @@ import org.w3c.dom.Node
 class DecisionCondition(conditionNode: Node) {
 
     val fieldName: String
-    val value: String
-    val comparator: String
+    var value: String
+    var comparator: String
 
     init {
         fieldName = NodeUtils.getValueOfNodeAttribute(conditionNode, "field")
@@ -25,10 +24,22 @@ class DecisionCondition(conditionNode: Node) {
             "\"${value}\""
         } else if (comparator == "") {
             value
-        } else if (isPartOfDisjunction) {
-            "(${AttributeUtils.getVariableName(fieldName)} $comparator $value)"
+        } else if (isPartOfDisjunction && this.comparator == ">=") {
+            "[$value"
+        } else if (isPartOfDisjunction && this.comparator == "<=") {
+            "${value}]"
         } else {
             "$comparator $value"
+        }
+    }
+
+    fun simplifyCondition() {
+        if (this.comparator == ">") {
+            this.value = "${this.value.toDouble() + 1}"
+            this.comparator = ">="
+        } else if (this.comparator == "<") {
+            this.value = "${this.value.toDouble() - 1}"
+            this.comparator = "<="
         }
     }
 
