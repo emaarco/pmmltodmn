@@ -26,20 +26,14 @@ class DecisionCondition(conditionNode: Node) {
             value
         } else if (isPartOfDisjunction && this.comparator == ">=") {
             "[$value"
+        } else if (isPartOfDisjunction && this.comparator == ">") {
+            "]$value"
         } else if (isPartOfDisjunction && this.comparator == "<=") {
-            "${value}]"
+            "$value]"
+        } else if (isPartOfDisjunction && this.comparator == "<") {
+            "$value["
         } else {
             "$comparator $value"
-        }
-    }
-
-    fun simplifyCondition() {
-        if (this.comparator == ">") {
-            this.value = "${this.value.toDouble() + 1}"
-            this.comparator = ">="
-        } else if (this.comparator == "<") {
-            this.value = "${this.value.toDouble() - 1}"
-            this.comparator = "<="
         }
     }
 
