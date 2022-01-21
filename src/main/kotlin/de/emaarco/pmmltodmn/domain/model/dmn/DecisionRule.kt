@@ -89,7 +89,6 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
             nodes
         } else nodes.filter {
             val filteredConditions: MutableList<DecisionCondition> = ArrayList()
-            nodes.forEach { condition -> condition.simplifyCondition() }
             val groupedConditions = nodes.groupBy { condition -> condition.comparator }
             groupedConditions.forEach { (condition, values) ->
                 filteredConditions.add(reduceNumericConditions(condition, values))
@@ -101,7 +100,9 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
 
     private fun reduceNumericConditions(comparator: String, values: List<DecisionCondition>): DecisionCondition {
         return when (comparator) {
+            ">" -> findMaximum(values)
             ">=" -> findMaximum(values)
+            "<" -> findMinimum(values)
             "<=" -> findMinimum(values)
             else -> throw RuntimeException("Cannot filter conditions for comparator '$comparator'")
         }
