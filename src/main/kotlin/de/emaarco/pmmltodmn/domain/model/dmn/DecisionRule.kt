@@ -1,6 +1,9 @@
 package de.emaarco.pmmltodmn.domain.model.dmn
 
-import de.emaarco.pmmltodmn.domain.model.tree.DataField
+import de.emaarco.pmmltodmn.domain.model.dmn.condition.CategoricalCondition
+import de.emaarco.pmmltodmn.domain.model.dmn.condition.DecisionRuleCondition
+import de.emaarco.pmmltodmn.domain.model.dmn.condition.EmptyCondition
+import de.emaarco.pmmltodmn.domain.model.dmn.condition.NumericalCondition
 import de.emaarco.pmmltodmn.domain.model.tree.TreeDictionary
 import de.emaarco.pmmltodmn.domain.utils.IdUtils
 import de.emaarco.pmmltodmn.domain.utils.NodeUtils
@@ -46,21 +49,14 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
             ruleRoot.appendChild(inputExpressionOfRule)
 
             val relevantEntries = groupedTree[attribute.name] ?: ArrayList()
-
-            // Get all conditions for the column
-            val allConditionsForField = getConditionsOfNodes(relevantEntries)
-            val simplifiedConditionsForField = simplifyConditions(attribute, allConditionsForField)
-            val combinedConditions = getFeelCondition(simplifiedConditionsForField, attribute)
-            val fullCondition = combinedConditions.joinToString("..").trim()
+            val conditionForField: DecisionRuleCondition = buildCondition(attribute.opType, relevantEntries)
 
             val conditionOfRuleInput = document.createElement("text")
-            conditionOfRuleInput.appendChild(document.createTextNode(fullCondition))
+            conditionOfRuleInput.appendChild(document.createTextNode(conditionForField.getFeelCondition()))
             inputExpressionOfRule.appendChild(conditionOfRuleInput)
             inputExpressions.add(inputExpressionOfRule)
         }
-
         updateOutputExpression(treeRoute.last())
-
     }
 
     private fun updateOutputExpression(outputNode: Node) {
@@ -72,57 +68,17 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
     private fun groupByField(nodes: List<Node>): Map<String, List<Node>> {
         return nodes.groupBy { node ->
             val conditionOfCurrentNode: Node = NodeUtils.getConditionOfTreeNode(node)
-            val condition = DecisionCondition(conditionOfCurrentNode)
-            condition.fieldName
+            NodeUtils.getValueOfNodeAttribute(conditionOfCurrentNode, "field")
         }
     }
 
-    private fun getConditionsOfNodes(nodes: List<Node>): List<DecisionCondition> {
-        return nodes.map { node ->
-            val condition = NodeUtils.getConditionOfTreeNode(node)
-            DecisionCondition(condition)
-        }
-    }
-
-    private fun simplifyConditions(field: DataField, nodes: List<DecisionCondition>): List<DecisionCondition> {
-        return if (field.opType != "continuous") {
-            nodes
-        } else nodes.filter {
-            val filteredConditions: MutableList<DecisionCondition> = ArrayList()
-            val groupedConditions = nodes.groupBy { condition -> condition.comparator }
-            groupedConditions.forEach { (condition, values) ->
-                filteredConditions.add(reduceNumericConditions(condition, values))
-            }
-            filteredConditions.sortBy { condition -> condition.value.toDouble() }
-            return filteredConditions
-        }
-    }
-
-    private fun reduceNumericConditions(comparator: String, values: List<DecisionCondition>): DecisionCondition {
-        return when (comparator) {
-            ">" -> findMaximum(values)
-            ">=" -> findMaximum(values)
-            "<" -> findMinimum(values)
-            "<=" -> findMinimum(values)
-            else -> throw RuntimeException("Cannot filter conditions for comparator '$comparator'")
-        }
-    }
-
-    private fun findMinimum(values: List<DecisionCondition>): DecisionCondition {
-        val minValue = values.map { v -> v.value.toDouble() }.minOrNull()
-        return values.find { v -> v.value.toDouble() == minValue }
-            ?: throw RuntimeException("Could not find minimal value for provided attribute")
-    }
-
-    private fun findMaximum(values: List<DecisionCondition>): DecisionCondition {
-        val minValue = values.map { v -> v.value.toDouble() }.maxOrNull()
-        return values.find { v -> v.value.toDouble() == minValue }
-            ?: throw RuntimeException("Could not find maximal value for provided attribute")
-    }
-
-    private fun getFeelCondition(conditions: List<DecisionCondition>, dataField: DataField): List<String> {
-        return conditions.map { condition ->
-            condition.getCondition(dataField.dataType, conditions.size > 1)
+    private fun buildCondition(attributeType: String, relevantEntries: List<Node>): DecisionRuleCondition {
+        return if (relevantEntries.isEmpty()) {
+            EmptyCondition()
+        } else if (attributeType == "continuous") {
+            NumericalCondition(relevantEntries)
+        } else {
+            CategoricalCondition(relevantEntries[0])
         }
     }
 
