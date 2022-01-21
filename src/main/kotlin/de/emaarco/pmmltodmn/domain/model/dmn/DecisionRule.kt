@@ -50,13 +50,12 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
             // Get all conditions for the column
             val allConditionsForField = getConditionsOfNodes(relevantEntries)
             val simplifiedConditionsForField = simplifyConditions(attribute, allConditionsForField)
-            val combinedConditions = combineConditions(simplifiedConditionsForField, attribute)
-            val fullCondition = combinedConditions.joinToString(" and ")
+            val combinedConditions = getFeelCondition(simplifiedConditionsForField, attribute)
+            val fullCondition = combinedConditions.joinToString("..").trim()
 
             val conditionOfRuleInput = document.createElement("text")
             conditionOfRuleInput.appendChild(document.createTextNode(fullCondition))
             inputExpressionOfRule.appendChild(conditionOfRuleInput)
-
             inputExpressions.add(inputExpressionOfRule)
         }
 
@@ -90,19 +89,19 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
             nodes
         } else nodes.filter {
             val filteredConditions: MutableList<DecisionCondition> = ArrayList()
+            nodes.forEach { condition -> condition.simplifyCondition() }
             val groupedConditions = nodes.groupBy { condition -> condition.comparator }
             groupedConditions.forEach { (condition, values) ->
-                filteredConditions.add(filterNumericConditions(condition, values))
+                filteredConditions.add(reduceNumericConditions(condition, values))
             }
+            filteredConditions.sortBy { condition -> condition.value.toDouble() }
             return filteredConditions
         }
     }
 
-    private fun filterNumericConditions(comparator: String, values: List<DecisionCondition>): DecisionCondition {
+    private fun reduceNumericConditions(comparator: String, values: List<DecisionCondition>): DecisionCondition {
         return when (comparator) {
             ">=" -> findMaximum(values)
-            ">" -> findMaximum(values)
-            "<" -> findMinimum(values)
             "<=" -> findMinimum(values)
             else -> throw RuntimeException("Cannot filter conditions for comparator '$comparator'")
         }
@@ -120,7 +119,7 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
             ?: throw RuntimeException("Could not find maximal value for provided attribute")
     }
 
-    private fun combineConditions(conditions: List<DecisionCondition>, dataField: DataField): List<String> {
+    private fun getFeelCondition(conditions: List<DecisionCondition>, dataField: DataField): List<String> {
         return conditions.map { condition ->
             condition.getCondition(dataField.dataType, conditions.size > 1)
         }

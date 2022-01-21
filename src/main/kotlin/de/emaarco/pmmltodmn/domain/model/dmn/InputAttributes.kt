@@ -62,7 +62,7 @@ class InputAttributes(document: Document, dataFields: List<DataField>) {
         val inputExpression = document.createElement("inputExpression")
         inputExpression.setAttribute("id", "InputExpression_${IdUtils.buildRandomId()}")
         inputExpression.setAttribute("typeRef", dataType)
-        inputExpression.setAttribute("expressionLanguage", "juel")
+        inputExpression.setAttribute("expressionLanguage", "feel")
         return inputExpression
     }
 
