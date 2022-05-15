@@ -15,7 +15,7 @@ import org.w3c.dom.Node
  * A specific rule of a dmn-decision table.
  * It has 'X' input expressions - and '1' output expression
  */
-class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: List<Node>) {
+class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: List<Node>, ruleId: Int) {
 
     private val ruleRoot: Element
     private val inputExpressions: MutableList<Element>
@@ -25,7 +25,7 @@ class DecisionRule(document: Document, dictionary: TreeDictionary, treeRoute: Li
         ruleRoot = document.createElement("rule")
         outputExpression = document.createElement("outputEntry")
         inputExpressions = ArrayList()
-        ruleRoot.setAttribute("id", "DecisionRule_${IdUtils.buildRandomId()}")
+        ruleRoot.setAttribute("id", "DecisionRule_${ruleId}")
         outputExpression.setAttribute("id", "LiteralExpression_${IdUtils.buildRandomId()}")
         outputExpression.appendChild(document.createElement("text"))
         buildRule(document, dictionary, treeRoute)

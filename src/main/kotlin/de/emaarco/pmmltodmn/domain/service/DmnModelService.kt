@@ -41,9 +41,11 @@ class DmnModelService {
         val outputAttribute = OutputAttribute(doc, targetAttribute)
         outputAttribute.appendTo(decisionTable)
 
+        var ruleId = 0;
         // Print the rules to the xml
         tree.forEach { (_, treeRoute: List<Node>) ->
-            val rule = DecisionRule(doc, dictionary, treeRoute)
+            ruleId = ruleId.plus(1)
+            val rule = DecisionRule(doc, dictionary, treeRoute, ruleId)
             rule.appendTo(decisionTable)
         }
 

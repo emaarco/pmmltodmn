@@ -4,7 +4,6 @@ import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.util.*
-import java.util.function.Consumer
 
 /**
  * All paths of the decision tree
@@ -25,7 +24,7 @@ class TreePaths(document: Document) {
         if (allNodes.length > 0) {
             val rootNode = allNodes.item(0)
             val childNodes = getChildNodes(rootNode)
-            childNodes.forEach(Consumer { child: Node -> findAllChildrenRecursive(child, ArrayList()) })
+            childNodes.forEach { child: Node -> findAllChildrenRecursive(child, ArrayList()) }
         }
     }
 
@@ -35,7 +34,7 @@ class TreePaths(document: Document) {
         if (children.isEmpty()) {
             treePaths[treePaths.size + 1] = currentRow
         } else {
-            children.forEach(Consumer { child: Node -> findAllChildrenRecursive(child, ArrayList(currentRow)) })
+            children.forEach { child -> findAllChildrenRecursive(child, ArrayList(currentRow)) }
         }
     }
 

@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
 @Component
-class DmnFacade(private val dmnModelService: DmnModelService, private val decisionTreeService: DecisionTreeService) {
+class DmnFacade(
+    private val dmnModelService: DmnModelService,
+    private val decisionTreeService: DecisionTreeService,
+) {
 
     fun buildDmnModel(rawPmmlModel: MultipartFile, request: DmnModelRequest): ByteArrayResource {
         val info: TreeInfo = decisionTreeService.extractDecisionTreeFromPmml(rawPmmlModel)
